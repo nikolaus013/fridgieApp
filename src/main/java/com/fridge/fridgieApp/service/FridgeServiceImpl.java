@@ -51,10 +51,9 @@ public class FridgeServiceImpl implements FridgeService {
     }
 
 
-    public List<Product> getExpiringProducts(Long fridgeId, int daysBeforeExpiration) {
-        LocalDate start = LocalDate.now();
-        LocalDate end = start.plusDays(daysBeforeExpiration);
-        return fridgeRepository.findExpiringProducts(fridgeId, start, end);
+    public List<Product> getProductsExpiringInDateRange(Long fridgeId, LocalDate startDate, LocalDate endDate) {
+        return fridgeRepository.getProductsExpiringInDateRange(fridgeId, startDate, endDate);
+
     }
 
     @Override
@@ -91,5 +90,15 @@ public class FridgeServiceImpl implements FridgeService {
        return fridge.getProducts().stream().filter(product -> product.getExpirationDate()
                .isAfter(LocalDate.now()))
                .sorted(Comparator.comparing(Product::getExpirationDate).reversed()).limit(count).toList();
+    }
+
+    @Override
+    public List<Product> getExpiringSoonProducts(long fridgeId, int daysBeforeExpiration) {
+        Fridge fridge = fridgeRepository.findById(fridgeId);
+
+        return  fridge.getProducts().stream()
+                .filter(product -> product.getExpirationDate().isBefore(LocalDate.now().plusDays(daysBeforeExpiration)))
+                .toList();
+
     }
 }
