@@ -15,10 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/fridge")
+@CrossOrigin(origins = "http://localhost:63342")
 public class FridgeController {
 
     private final FridgeService fridgeService;
-    @PostMapping("/addFridge")
+    @PostMapping("/addfridge")
     public ResponseEntity<Fridge>  addFridge(@Valid @RequestBody  Fridge fridge){
       return   ResponseEntity.status(HttpStatus.CREATED)
               .body(fridgeService.addFridge(fridge));
