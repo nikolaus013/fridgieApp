@@ -23,7 +23,6 @@ public class Fridge {
     private String fridgeName;
     @Min(value = 1, message = "Capacity must be at least 1")
     private int fridgeCapacity;
-    @OneToMany(mappedBy = "fridge")
     private List<Product> products = new ArrayList<>();
 
 

@@ -1,6 +1,5 @@
 package com.fridge.fridgieApp.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,15 +7,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Entity
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private long id;
     private String productName;
     private LocalDate expirationDate;
@@ -24,7 +22,5 @@ public class Product {
     private String description;
     private String category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Fridge fridge;
 
 }
