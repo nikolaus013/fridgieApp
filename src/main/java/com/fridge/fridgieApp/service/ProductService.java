@@ -20,7 +20,8 @@ public interface ProductService {
 
     public void deleteExpiredProducts();
     public void deleteProductsOlderThanDays(LocalDate daysAgo);
-
+    public   List<Product> findExpiringSoon(Long fridgeId,LocalDate soonToExpireDate);
     public List<Product> getExpiringSoonProducts(int days);
+    public List<Product> getExpiringSoonProductsByFridgeId(Long fridgeId);
 
 }

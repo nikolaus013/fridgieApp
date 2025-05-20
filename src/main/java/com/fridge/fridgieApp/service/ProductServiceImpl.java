@@ -72,7 +72,19 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    public List<Product> findExpiringSoon(Long fridgeId, LocalDate soonToExpireDate) {
+        LocalDate thresholdDate = LocalDate.now().plusDays(30);
+        return productRepository.findExpiringSoon(fridgeId,thresholdDate);
+    }
+
+    @Override
     public List<Product> getExpiringSoonProducts(int days) {
         return List.of();
+    }
+
+    @Override
+    public List<Product> getExpiringSoonProductsByFridgeId(Long fridgeId) {
+       return List.of();
+
     }
 }

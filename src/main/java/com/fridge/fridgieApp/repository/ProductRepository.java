@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     void deleteById(long id);
 
     @Query("SELECT p FROM Product p WHERE p.expirationDate  BETWEEN  CURRENT DATE AND ?1")
-    List<Product> findExpiringSoon(LocalDate soonToExpireDate);
+    List<Product> findExpiringSoon(Long fridgeId,LocalDate soonToExpireDate);
 
     @Query("SELECT p FROM Product p WHERE p.fridge.id = ?1 AND p.expirationDate BETWEEN ?2 AND CURRENT DATE")
     List<Product> findByFridgeIdAndExpirationDateBetween(long fridgeId, LocalDate soonToExpireDate, LocalDate now);
