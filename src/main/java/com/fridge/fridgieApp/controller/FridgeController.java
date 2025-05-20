@@ -13,7 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/fridges")
+@RequestMapping("/fridge")
 public class FridgeController {
 
     private FridgeService fridgeService;
