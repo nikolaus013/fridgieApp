@@ -3,6 +3,7 @@ package com.fridge.fridgieApp.controller;
 import com.fridge.fridgieApp.model.Fridge;
 import com.fridge.fridgieApp.model.Product;
 import com.fridge.fridgieApp.service.FridgeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,13 @@ public class FridgeController {
 
     private final FridgeService fridgeService;
     @PostMapping("/addFridge")
-    public ResponseEntity<Fridge>  addFridge(@RequestBody  Fridge fridge){
+    public ResponseEntity<Fridge>  addFridge(@Valid @RequestBody  Fridge fridge){
       return   ResponseEntity.status(HttpStatus.CREATED)
               .body(fridgeService.addFridge(fridge));
     }
 
     @PostMapping("/{fridgeId}/products")
-    public ResponseEntity<Fridge> addProductToFridge(@RequestBody Product product, @PathVariable long fridgeId){
+    public ResponseEntity<Fridge> addProductToFridge(@Valid @RequestBody Product product, @PathVariable long fridgeId){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fridgeService.addProductToFridge(fridgeId, product));
     }

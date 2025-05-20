@@ -1,8 +1,8 @@
 package com.fridge.fridgieApp.model;
 
 import jakarta.persistence.Embeddable;
+
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Product {
     private String productName;
+    @FutureOrPresent(message = "Expiration date must be in the future")
     private LocalDate expirationDate;
     private LocalDate dateAdded;
     private String description;

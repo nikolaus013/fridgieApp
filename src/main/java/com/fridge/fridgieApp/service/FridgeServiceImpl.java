@@ -47,6 +47,7 @@ public class FridgeServiceImpl implements FridgeService{
             log.info("Fridge is almost full, please consider removing products, current percentage: " + filledPercentage * 100);
         }
         fridge.addProduct(product);
+        log.info("Product added to fridge: {}", product.getProductName());
         return fridgeRepository.save(fridge);
     }
 
