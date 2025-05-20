@@ -20,4 +20,6 @@ public interface FridgeService {
     List<Product> getProductsInFridge(long fridgeId, String sortBy, String order);
 
     List<Product> getExpiredProducts(Long fridgeId);
+
+    List<Product> getLongestStoredProducts(Long fridgeId,int count);
 }

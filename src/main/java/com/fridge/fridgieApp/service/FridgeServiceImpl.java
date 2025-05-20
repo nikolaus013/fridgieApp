@@ -78,10 +78,18 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getExpiredProducts(Long fridgeId) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
 
         return fridge.getProducts().stream()
                 .filter(product -> product.getExpirationDate().isBefore(LocalDate.now()))
                 .toList();
+    }
+
+    @Override
+    public List<Product> getLongestStoredProducts(Long fridgeId,int count) {
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
+       return fridge.getProducts().stream().filter(product -> product.getExpirationDate()
+               .isAfter(LocalDate.now()))
+               .sorted(Comparator.comparing(Product::getExpirationDate).reversed()).limit(count).toList();
     }
 }

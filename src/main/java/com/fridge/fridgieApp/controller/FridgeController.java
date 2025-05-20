@@ -68,6 +68,12 @@ public class FridgeController {
                 .body(fridgeService.getExpiredProducts(fridgeId));
     }
 
+    @GetMapping("/{fridgeId}/longest-stored")
+    public ResponseEntity<List<Product>> getLongestStoredProducts(@PathVariable long fridgeId, @RequestParam(defaultValue = "5") int count){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.getLongestStoredProducts(fridgeId,count));
+    }
+
 
 
 }
