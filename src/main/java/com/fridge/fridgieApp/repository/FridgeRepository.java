@@ -23,6 +23,8 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
             @Param("end") LocalDate endDate
     );
 
+ //   List<Product> getProductsInFridge(long fridgeId,String sortBy, String order);
+
 
 
 }

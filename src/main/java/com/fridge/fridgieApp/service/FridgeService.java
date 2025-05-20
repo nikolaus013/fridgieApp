@@ -14,4 +14,5 @@ public interface FridgeService {
 
      Fridge addProductToFridge(Long fridgeId, Product product);
      List<Product> getExpiringProducts(Long fridgeId, int daysBeforeExpiration);
+     List<Product> getProductsInFridge(long fridgeId,String sortBy, String order);
 }

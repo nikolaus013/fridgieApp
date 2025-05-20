@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -56,5 +57,24 @@ public class FridgeServiceImpl implements FridgeService{
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(daysBeforeExpiration);
         return fridgeRepository.findExpiringProducts(fridgeId, start, end);
+    }
+
+    @Override
+    public List<Product> getProductsInFridge(long fridgeId, String sortBy, String order) {
+        Fridge fridge = fridgeRepository.findById(fridgeId);
+       var products = fridge.getProducts();
+        Comparator<Product> comparator = null;
+
+        if(sortBy != null){
+            comparator = switch (sortBy.toLowerCase()) {
+                case "category" -> Comparator.comparing(Product::getCategory);
+                case "expirationdate" -> Comparator.comparing(Product::getExpirationDate);
+                case "productname" -> Comparator.comparing(Product::getProductName);
+                default -> comparator;
+            };
+        }
+
+        products.sort(comparator == null ? Comparator.comparing(Product::getProductName) : comparator);
+        return products;
     }
 }

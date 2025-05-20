@@ -56,5 +56,12 @@ public class FridgeController {
     }
 
 
+    @GetMapping("/{fridgeId}/fridgeproducts")
+    public ResponseEntity<List<Product>> getProductsInFridge(@PathVariable long fridgeId,@RequestParam(required = false) String sortBy,  @RequestParam(required = false, defaultValue = "asc") String order){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.getProductsInFridge(fridgeId,sortBy,order));
+    }
+
+
 
 }
