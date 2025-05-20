@@ -10,8 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface FridgeRepository extends JpaRepository<Fridge, Long> {
-    Fridge findByName(String name);
-    Fridge findByCapacity(int capacity);
+    Fridge findByFridgeName(String fridgeName);
+
+    Fridge findByFridgeCapacity(int fridgeCapacity);
     Fridge findById(long id);
 
     @Query("SELECT f.products FROM Fridge f WHERE f.id = :fridgeId AND " +
@@ -22,9 +23,6 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
             @Param("end") LocalDate endDate
     );
 
-    List<Product> findAllProducts();
 
-    List<Product> findExpiredProducts();
-    List<Product> findSoonToExpireProducts();
 
 }

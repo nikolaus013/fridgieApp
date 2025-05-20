@@ -16,16 +16,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
-
-
-    @NotNull(message = "Name cannot be null")
     private String productName;
-
-    @FutureOrPresent(message = "Must be in the future")
     private LocalDate expirationDate;
-    private LocalDate dateAdded = LocalDate.now();
+    private LocalDate dateAdded;
     private String description;
     private String category;
-
-
 }

@@ -28,7 +28,7 @@ public class FridgeServiceImpl implements FridgeService{
 
     @Override
     public List<Fridge> getAllFridges() {
-        return List.of();
+        return fridgeRepository.findAll();
     }
 
     @Override

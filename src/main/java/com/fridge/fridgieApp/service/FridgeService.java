@@ -2,8 +2,6 @@ package com.fridge.fridgieApp.service;
 
 import com.fridge.fridgieApp.model.Fridge;
 import com.fridge.fridgieApp.model.Product;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 

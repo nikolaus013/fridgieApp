@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/fridge")
 public class FridgeController {
 
-    private FridgeService fridgeService;
+    private final FridgeService fridgeService;
     @PostMapping("/addFridge")
     public ResponseEntity<Fridge>  addFridge(@RequestBody  Fridge fridge){
       return   ResponseEntity.status(HttpStatus.CREATED)
@@ -47,7 +47,7 @@ public class FridgeController {
                 .body(fridgeService.getAllFridges());
     }
 
-    @GetMapping("/{fridgeId}")
+    @GetMapping("/{fridgeId}/expire")
     public ResponseEntity<List<Product>> findExpiringProducts(@PathVariable long fridgeId,@RequestParam int startDate,@RequestParam int endDate){
         return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getExpiringProducts(fridgeId, startDate));
 
