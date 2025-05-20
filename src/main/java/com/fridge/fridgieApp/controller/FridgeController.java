@@ -35,5 +35,24 @@ public class FridgeController {
                 .body(fridgeService.getExpiringProducts(fridgeId, daysBeforeExpiration));
     }
 
+    @GetMapping("/{fridgeId}")
+    public ResponseEntity<Fridge> getFridgeById(@PathVariable long fridgeId){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.getFridgeById(fridgeId));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Fridge>> getAllFridges(){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.getAllFridges());
+    }
+
+    @GetMapping("/{fridgeId}")
+    public ResponseEntity<List<Product>> findExpiringProducts(@PathVariable long fridgeId,@RequestParam int startDate,@RequestParam int endDate){
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getExpiringProducts(fridgeId, startDate));
+
+    }
+
+
 
 }

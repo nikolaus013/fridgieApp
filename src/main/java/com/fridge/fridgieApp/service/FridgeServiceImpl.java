@@ -32,8 +32,8 @@ public class FridgeServiceImpl implements FridgeService{
     }
 
     @Override
-    public Fridge getFridgeById(long id) {
-        return null;
+    public Fridge getFridgeById(long fridgeId) {
+        return fridgeRepository.findById(fridgeId);
     }
 
     @Override
