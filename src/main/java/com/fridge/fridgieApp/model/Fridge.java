@@ -6,25 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class Product {
-
+@NoArgsConstructor
+public class Fridge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String productName;
-    private LocalDate expirationDate;
-    private LocalDate dateAdded;
-    private String description;
-    private String category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Fridge fridge;
+    private String fridgeName;
+    private int fridgeCapacity;
+    @OneToMany(mappedBy = "fridge")
+    private List<Product> products = new ArrayList<>();
+
+
+
 
 }
