@@ -2,17 +2,22 @@ package com.fridge.fridgieApp.service;
 
 import com.fridge.fridgieApp.model.Fridge;
 import com.fridge.fridgieApp.model.Product;
+
 import java.util.List;
 
 
 public interface FridgeService {
-     Fridge addFridge(Fridge fridge);
+    Fridge addFridge(Fridge fridge);
 
-     List<Fridge> getAllFridges();
+    List<Fridge> getAllFridges();
 
-     Fridge getFridgeById(long id);
+    Fridge getFridgeById(long id);
 
-     Fridge addProductToFridge(Long fridgeId, Product product);
-     List<Product> getExpiringProducts(Long fridgeId, int daysBeforeExpiration);
-     List<Product> getProductsInFridge(long fridgeId,String sortBy, String order);
+    Fridge addProductToFridge(Long fridgeId, Product product);
+
+    List<Product> getExpiringProducts(Long fridgeId, int daysBeforeExpiration);
+
+    List<Product> getProductsInFridge(long fridgeId, String sortBy, String order);
+
+    List<Product> getExpiredProducts(Long fridgeId);
 }

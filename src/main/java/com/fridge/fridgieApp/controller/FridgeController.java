@@ -62,6 +62,12 @@ public class FridgeController {
                 .body(fridgeService.getProductsInFridge(fridgeId,sortBy,order));
     }
 
+    @GetMapping("/{fridgeId}/expired")
+    public ResponseEntity<List<Product>> getExpiredProducts(@PathVariable long fridgeId){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.getExpiredProducts(fridgeId));
+    }
+
 
 
 }
