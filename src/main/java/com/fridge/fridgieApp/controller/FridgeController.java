@@ -76,5 +76,11 @@ public class FridgeController {
                 .body(fridgeService.getLongestStoredProducts(fridgeId, count));
     }
 
+    @GetMapping("/{fridgeId}/products/search")
+    public ResponseEntity<List<Product>> searchProductsInFridge(@PathVariable long fridgeId, @RequestParam(required = false) String name, @RequestParam(required = false) String category) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fridgeService.searchProductsInFridge(fridgeId, name, category));
+    }
+
 
 }

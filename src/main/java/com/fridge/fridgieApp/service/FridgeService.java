@@ -25,4 +25,10 @@ public interface FridgeService {
     List<Product> getLongestStoredProducts(Long fridgeId,int count);
 
     List<Product> getExpiringSoonProducts(long fridgeId,int daysBeforeExpiration);
+
+    List<Product> searchProductsInFridge(long fridgeId, String name,String category);
+
+    List<Product> getUseFirstSuggestions(long fridgeId,int count);
+
+    List<Product> getWhatIsNew(long fridgeId,int days);
 }

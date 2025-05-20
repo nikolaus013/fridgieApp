@@ -101,4 +101,36 @@ public class FridgeServiceImpl implements FridgeService {
                 .toList();
 
     }
+
+    @Override
+    public List<Product> searchProductsInFridge(long fridgeId, String name,String category) {
+        Fridge fridge = fridgeRepository.findById(fridgeId);
+        if (name != null && name.trim().isBlank()) {
+            var lowerCaseName = name.toLowerCase();
+            return fridge.getProducts().stream()
+                    .filter(product -> product.getProductName().toLowerCase().contains(lowerCaseName))
+                    .toList();
+        } else if (category != null && category.trim().isEmpty()) {
+            var lowerCaseCategory = category.toLowerCase();
+            return fridge.getProducts().stream()
+                    .filter(product -> product.getCategory().toLowerCase().contains(lowerCaseCategory))
+                    .toList();
+        } else {
+            return fridge.getProducts();
+        }
+
+    }
+
+    @Override
+    public List<Product> getUseFirstSuggestions(long fridgeId, int count) {
+        return List.of();
+    }
+
+    @Override
+    public List<Product> getWhatIsNew(long fridgeId, int days) {
+        return List.of();
+    }
+
+
+    // TODO Implement  Summary/Dashboard information for fridge
 }
