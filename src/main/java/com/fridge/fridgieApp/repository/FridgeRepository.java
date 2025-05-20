@@ -23,7 +23,7 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
     );
 
     List<Product> findAllProducts();
-    List<Product> findProductsByName(String name);
+
     List<Product> findExpiredProducts();
     List<Product> findSoonToExpireProducts();
 

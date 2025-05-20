@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public interface FridgeService {
-    public void addFridge(Fridge fridge);
+    public Fridge addFridge(Fridge fridge);
 
     public List<Fridge> getAllFridges();
 

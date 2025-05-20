@@ -21,8 +21,8 @@ public class FridgeServiceImpl implements FridgeService{
 
 
     @Override
-    public void addFridge(Fridge fridge) {
-        fridgeRepository.save(fridge);
+    public Fridge addFridge(Fridge fridge) {
+     return  fridgeRepository.save(fridge);
     }
 
 
