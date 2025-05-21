@@ -95,7 +95,7 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     public List<Product> getExpiringSoonProducts(long fridgeId, int daysBeforeExpiration) {
         Fridge fridge = fridgeRepository.findById(fridgeId);
-
+        log.info("Showing products expiring in {} days for fridge {}",daysBeforeExpiration,fridge.getFridgeName());
         return  fridge.getProducts().stream()
                 .filter(product -> product.getExpirationDate().isBefore(LocalDate.now().plusDays(daysBeforeExpiration)))
                 .toList();
@@ -105,17 +105,20 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     public List<Product> searchProductsInFridge(long fridgeId, String name,String category) {
         Fridge fridge = fridgeRepository.findById(fridgeId);
-        if (name != null && name.trim().isBlank()) {
+        if (name != null && !name.trim().isEmpty()) {
+            log.info("Searching for products with name {}",name);
             var lowerCaseName = name.toLowerCase();
             return fridge.getProducts().stream()
                     .filter(product -> product.getProductName().toLowerCase().contains(lowerCaseName))
                     .toList();
-        } else if (category != null && category.trim().isEmpty()) {
+        } else if (category != null && !category.trim().isEmpty()) {
+            log.info("Searching for products with category {}",category);
             var lowerCaseCategory = category.toLowerCase();
             return fridge.getProducts().stream()
                     .filter(product -> product.getCategory().toLowerCase().contains(lowerCaseCategory))
                     .toList();
         } else {
+            log.info("Searching for all products in fridge {}",fridge.getFridgeName());
             return fridge.getProducts();
         }
 
@@ -129,8 +132,9 @@ public class FridgeServiceImpl implements FridgeService {
         Comparator<Product> useFirstComparator = Comparator.comparing(Product::getExpirationDate,Comparator.nullsFirst(LocalDate::compareTo))
                 .thenComparing(Product::getDateAdded,Comparator.nullsFirst(LocalDate::compareTo));
         //Sorting
+        log.info("Sorting products");
         allProducts.sort(useFirstComparator);
-
+        log.info("Showing {} products",count);
         return allProducts.stream()
                 .limit(count)
                 .toList();
@@ -138,7 +142,13 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getWhatIsNew(long fridgeId, int days) {
-        return List.of();
+        Fridge fridge = fridgeRepository.findById(fridgeId);
+        LocalDate cutoffDate = LocalDate.now().minusDays(days);
+        log.info("Showing products added after {} for fridge {}",cutoffDate,fridgeId);
+        return fridge.getProducts().stream().filter(product ->  product.getDateAdded() != null && (product.getDateAdded().isEqual(cutoffDate) || product.getDateAdded().isAfter(cutoffDate)))
+                .sorted(Comparator.comparing(Product::getDateAdded).reversed()) //Show the newest first
+                .toList();
+
     }
 
 

@@ -88,4 +88,10 @@ public class FridgeController {
     }
 
 
+    @GetMapping("/{fridgeID}/products/show-newest")
+    public ResponseEntity<List<Product>> getWhatIsNew(@PathVariable long fridgeID,@RequestParam int days){
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getWhatIsNew(fridgeID,days));
+    }
+
+
 }
