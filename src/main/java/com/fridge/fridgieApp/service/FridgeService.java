@@ -17,21 +17,21 @@ public interface FridgeService {
 
     Fridge addProductToFridge(Long fridgeId, Product product);
 
-    List<Product> getProductsExpiringInDateRange(Long fridgeId, LocalDate startDate, LocalDate  endDate);
+    List<Product> getProductsExpiringInDateRange(Long fridgeId, LocalDate startDate, LocalDate endDate);
 
     List<Product> getProductsInFridge(long fridgeId, String sortBy, String order);
 
     List<Product> getExpiredProducts(Long fridgeId);
 
-    List<Product> getLongestStoredProducts(Long fridgeId,int count);
+    List<Product> getLongestStoredProducts(Long fridgeId, int count);
 
-    List<Product> getExpiringSoonProducts(long fridgeId,int daysBeforeExpiration);
+    List<Product> getExpiringSoonProducts(long fridgeId, int daysBeforeExpiration);
 
-    List<Product> searchProductsInFridge(long fridgeId, String name,String category);
+    List<Product> searchProductsInFridge(long fridgeId, String name, String category);
 
-    List<Product> getUseFirstSuggestions(long fridgeId,int count);
+    List<Product> getUseFirstSuggestions(long fridgeId, int count);
 
-    List<Product> getWhatIsNew(long fridgeId,int days);
+    List<Product> getWhatIsNew(long fridgeId, int days);
 
     FridgeSummaryDto getFridgeSummary(long fridgeId);
 }

@@ -336,7 +336,6 @@ public class FridgeServiceTest {
     }
 
 
-
     @Test
     @DisplayName("getProductsInFridge should sort products by category ascending")
     void testGetProductsInFridge_sortByCategoryAsc() {

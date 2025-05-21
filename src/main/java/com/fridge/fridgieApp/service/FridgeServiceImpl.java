@@ -74,7 +74,8 @@ public class FridgeServiceImpl implements FridgeService {
             };
         }
 
-        if("desc".equalsIgnoreCase(order)) comparator = comparator == null ? Comparator.comparing(Product::getProductName).reversed() : comparator.reversed();
+        if ("desc".equalsIgnoreCase(order))
+            comparator = comparator == null ? Comparator.comparing(Product::getProductName).reversed() : comparator.reversed();
 
         products.sort(comparator == null ? Comparator.comparing(Product::getProductName) : comparator);
         return products;

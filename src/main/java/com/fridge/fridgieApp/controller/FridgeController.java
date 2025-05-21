@@ -35,9 +35,9 @@ public class FridgeController {
     }
 
     @GetMapping("/{fridgeId}/expiring-soon")
-    public ResponseEntity<List<Product>> getExpiringSoonProducts(@PathVariable long fridgeId, @RequestParam int daysBeforeExpiration){
+    public ResponseEntity<List<Product>> getExpiringSoonProducts(@PathVariable long fridgeId, @RequestParam int daysBeforeExpiration) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(fridgeService.getExpiringSoonProducts(fridgeId,daysBeforeExpiration));
+                .body(fridgeService.getExpiringSoonProducts(fridgeId, daysBeforeExpiration));
     }
 
     @GetMapping("/{fridgeId}")
@@ -84,18 +84,18 @@ public class FridgeController {
     }
 
     @GetMapping("/{fridgeId}/products/suggest-first")
-    public ResponseEntity<List<Product>> useFirstSuggestion(@PathVariable long fridgeId,@RequestParam int count){
-        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getUseFirstSuggestions(fridgeId,count));
+    public ResponseEntity<List<Product>> useFirstSuggestion(@PathVariable long fridgeId, @RequestParam int count) {
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getUseFirstSuggestions(fridgeId, count));
     }
 
 
     @GetMapping("/{fridgeId}/products/show-newest")
-    public ResponseEntity<List<Product>> getWhatIsNew(@PathVariable long fridgeId,@RequestParam int days){
-        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getWhatIsNew(fridgeId,days));
+    public ResponseEntity<List<Product>> getWhatIsNew(@PathVariable long fridgeId, @RequestParam int days) {
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getWhatIsNew(fridgeId, days));
     }
 
     @GetMapping("/{fridgeId}/summary")
-    public ResponseEntity<FridgeSummaryDto> getFridgeSummary(@PathVariable long fridgeId){
+    public ResponseEntity<FridgeSummaryDto> getFridgeSummary(@PathVariable long fridgeId) {
         return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getFridgeSummary(fridgeId));
     }
 
