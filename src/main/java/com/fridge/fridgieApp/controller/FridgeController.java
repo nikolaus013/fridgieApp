@@ -82,5 +82,10 @@ public class FridgeController {
                 .body(fridgeService.searchProductsInFridge(fridgeId, name, category));
     }
 
+    @GetMapping("/{fridgeId}/products/suggest-first")
+    public ResponseEntity<List<Product>> useFirstSuggestion(@PathVariable long fridgeId,@RequestParam int count){
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getUseFirstSuggestions(fridgeId,count));
+    }
+
 
 }

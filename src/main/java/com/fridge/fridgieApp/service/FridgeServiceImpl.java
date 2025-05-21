@@ -123,7 +123,17 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getUseFirstSuggestions(long fridgeId, int count) {
-        return List.of();
+        Fridge fridge = fridgeRepository.findById(fridgeId);
+        var allProducts = fridge.getProducts();
+
+        Comparator<Product> useFirstComparator = Comparator.comparing(Product::getExpirationDate,Comparator.nullsFirst(LocalDate::compareTo))
+                .thenComparing(Product::getDateAdded,Comparator.nullsFirst(LocalDate::compareTo));
+        //Sorting
+        allProducts.sort(useFirstComparator);
+
+        return allProducts.stream()
+                .limit(count)
+                .toList();
     }
 
     @Override
