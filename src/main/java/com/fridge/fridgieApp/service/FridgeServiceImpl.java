@@ -79,7 +79,7 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     public List<Product> getExpiredProducts(Long fridgeId) {
         Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
-
+        log.info("Showing expired products for fridge {}", fridge.getFridgeName());
         return fridge.getProducts().stream()
                 .filter(product -> product.getExpirationDate().isBefore(LocalDate.now()))
                 .toList();
@@ -88,6 +88,7 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     public List<Product> getLongestStoredProducts(Long fridgeId, int count) {
         Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
+        log.info("Showing {} longest stored products for fridge {}", count, fridge.getFridgeName());
         return fridge.getProducts().stream().filter(product -> product.getExpirationDate()
                         .isAfter(LocalDate.now()))
                 .sorted(Comparator.comparing(Product::getExpirationDate).reversed()).limit(count).toList();
@@ -158,7 +159,7 @@ public class FridgeServiceImpl implements FridgeService {
 
         List<Product> fridgeProducts = fridge.getProducts();
 
-        int daysForSoonToExpire = 7; // Or make this configurable
+        int daysForSoonToExpire = 7;
         LocalDate today = LocalDate.now();
 
         int totalProducts = fridgeProducts.size();
@@ -207,8 +208,6 @@ public class FridgeServiceImpl implements FridgeService {
                     longestStoredProductRaw.getExpirationDate()
             );
         }
-
-
         return new FridgeSummaryDto(
                 fridge.getId(),
                 fridge.getFridgeName(),
