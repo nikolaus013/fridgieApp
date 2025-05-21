@@ -68,9 +68,13 @@ public class FridgeServiceImpl implements FridgeService {
                 case "category" -> Comparator.comparing(Product::getCategory);
                 case "expirationdate" -> Comparator.comparing(Product::getExpirationDate);
                 case "productname" -> Comparator.comparing(Product::getProductName);
-                default -> comparator;
+                case "dateadded" -> Comparator.comparing(Product::getDateAdded);
+                default -> null;
+
             };
         }
+
+        if("desc".equalsIgnoreCase(order)) comparator = comparator == null ? Comparator.comparing(Product::getProductName).reversed() : comparator.reversed();
 
         products.sort(comparator == null ? Comparator.comparing(Product::getProductName) : comparator);
         return products;

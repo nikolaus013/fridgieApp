@@ -11,10 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -270,6 +267,117 @@ public class FridgeServiceTest {
         // Assert
         assertEquals(3, updatedFridge.getProducts().size());
 
+    }
+
+    @Test
+    @DisplayName("getProductsExpiringInDateRange should call repository method and return its result")
+    void testGetProductsExpiringInDateRange_callsRepository() {
+        //  Arrange
+        long fridgeId = 1L;
+        LocalDate startDate = TODAY;
+        LocalDate endDate = TODAY.plusDays(5);
+        List<Product> expectedProducts = Collections.singletonList(testProduct1); // Assume product1 expires in this range
+
+        // Mock the repository to return the expected list for these specific arguments
+        when(fridgeRepository.getProductsExpiringInDateRange(fridgeId, startDate, endDate))
+                .thenReturn(expectedProducts);
+
+        //  Act
+        List<Product> actualProducts = fridgeService.getProductsExpiringInDateRange(fridgeId, startDate, endDate);
+
+        //  Assert
+        assertEquals(expectedProducts, actualProducts);
+        verify(fridgeRepository, times(1)).getProductsExpiringInDateRange(fridgeId, startDate, endDate);
+    }
+
+
+    @Test
+    @DisplayName("getProductsInFridge should sort products by productName ascending by default")
+    void testGetProductsInFridge_defaultSort_byProductNameAsc() {
+        //  Arrange
+        long fridgeId = 1L;
+        Product product1 = new Product("Apple", TODAY.plusDays(1), TODAY, "Fruit", "Produce");
+        Product product2 = new Product("Banana", TODAY.plusDays(2), TODAY, "Fruit", "Produce");
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(product2, product1))); // Unsorted
+
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> sortedProducts = fridgeService.getProductsInFridge(fridgeId, null, "asc");
+
+        //  Assert
+        assertNotNull(sortedProducts);
+        assertEquals(2, sortedProducts.size());
+        assertEquals("Apple", sortedProducts.get(0).getProductName());
+        assertEquals("Banana", sortedProducts.get(1).getProductName());
+        verify(fridgeRepository, times(1)).findById(fridgeId);
+    }
+
+    @Test
+    @DisplayName("getProductsInFridge should sort products by expirationDate descending")
+    void testGetProductsInFridge_sortByExpirationDateDesc() {
+        //  Arrange
+        long fridgeId = 1L;
+        Product productExpiringSoon = new Product("Yogurt", TODAY.plusDays(1), TODAY, "Dairy", "Dairy"); // Expires sooner
+        Product productExpiringLater = new Product("Milk", TODAY.plusDays(5), TODAY, "Dairy", "Dairy");  // Expires later
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(productExpiringSoon, productExpiringLater))); // Unsorted by these criteria initially
+
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> sortedProducts = fridgeService.getProductsInFridge(fridgeId, "expirationdate", "desc");
+
+        //  Assert
+        assertNotNull(sortedProducts);
+        assertEquals(2, sortedProducts.size());
+        assertEquals("Milk", sortedProducts.get(0).getProductName());   // Later expiry comes first due to desc
+        assertEquals("Yogurt", sortedProducts.get(1).getProductName());
+        verify(fridgeRepository, times(1)).findById(fridgeId);
+    }
+
+
+
+    @Test
+    @DisplayName("getProductsInFridge should sort products by category ascending")
+    void testGetProductsInFridge_sortByCategoryAsc() {
+        //  Arrange
+        long fridgeId = 1L;
+        Product pDairy = new Product("Milk", TODAY.plusDays(5), TODAY, "Dairy", "Dairy");
+        Product pBakery = new Product("Bread", TODAY.plusDays(2), TODAY, "Grain", "Bakery");
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pDairy, pBakery))); // Unsorted by category
+
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> sortedProducts = fridgeService.getProductsInFridge(fridgeId, "category", "asc");
+
+        //  Assert
+        assertNotNull(sortedProducts);
+        assertEquals(2, sortedProducts.size());
+        assertEquals("Bakery", sortedProducts.get(0).getCategory());
+        assertEquals("Dairy", sortedProducts.get(1).getCategory());
+        verify(fridgeRepository, times(1)).findById(fridgeId);
+    }
+
+    @Test
+    @DisplayName("getProductsInFridge should handle invalid sortBy by defaulting to productName")
+    void testGetProductsInFridge_invalidSortBy_defaultsToProductName() {
+        //  Arrange
+        long fridgeId = 1L;
+        Product product1 = new Product("Apple", TODAY.plusDays(1), TODAY, "Fruit", "Produce");
+        Product product2 = new Product("Banana", TODAY.plusDays(2), TODAY, "Fruit", "Produce");
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(product2, product1))); // Unsorted
+
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> sortedProducts = fridgeService.getProductsInFridge(fridgeId, "invalidsortkey", "asc");
+
+        //  Assert
+        // Your switch default makes comparator null, then products.sort uses the ternary operator's default.
+        assertEquals("Apple", sortedProducts.get(0).getProductName());
+        assertEquals("Banana", sortedProducts.get(1).getProductName());
+        verify(fridgeRepository, times(1)).findById(fridgeId);
     }
 
 
