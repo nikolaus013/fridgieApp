@@ -1,5 +1,6 @@
 package com.fridge.fridgieApp.controller;
 
+import com.fridge.fridgieApp.dto.FridgeSummaryDto;
 import com.fridge.fridgieApp.model.Fridge;
 import com.fridge.fridgieApp.model.Product;
 import com.fridge.fridgieApp.service.FridgeService;
@@ -88,9 +89,14 @@ public class FridgeController {
     }
 
 
-    @GetMapping("/{fridgeID}/products/show-newest")
-    public ResponseEntity<List<Product>> getWhatIsNew(@PathVariable long fridgeID,@RequestParam int days){
-        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getWhatIsNew(fridgeID,days));
+    @GetMapping("/{fridgeId}/products/show-newest")
+    public ResponseEntity<List<Product>> getWhatIsNew(@PathVariable long fridgeId,@RequestParam int days){
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getWhatIsNew(fridgeId,days));
+    }
+
+    @GetMapping("/{fridgeId}/summary")
+    public ResponseEntity<FridgeSummaryDto> getFridgeSummary(@PathVariable long fridgeId){
+        return ResponseEntity.status(HttpStatus.OK).body(fridgeService.getFridgeSummary(fridgeId));
     }
 
 

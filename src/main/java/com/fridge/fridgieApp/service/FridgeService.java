@@ -1,5 +1,6 @@
 package com.fridge.fridgieApp.service;
 
+import com.fridge.fridgieApp.dto.FridgeSummaryDto;
 import com.fridge.fridgieApp.model.Fridge;
 import com.fridge.fridgieApp.model.Product;
 
@@ -31,4 +32,6 @@ public interface FridgeService {
     List<Product> getUseFirstSuggestions(long fridgeId,int count);
 
     List<Product> getWhatIsNew(long fridgeId,int days);
+
+    FridgeSummaryDto getFridgeSummary(long fridgeId);
 }
