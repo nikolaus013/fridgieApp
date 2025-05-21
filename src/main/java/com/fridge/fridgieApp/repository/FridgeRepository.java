@@ -13,7 +13,7 @@ public interface FridgeRepository extends JpaRepository<Fridge, Long> {
     Fridge findByFridgeName(String fridgeName);
 
     Fridge findByFridgeCapacity(int fridgeCapacity);
-    Fridge findById(long id);
+   // Fridge findById(long id);
 
     @Query("SELECT f.products FROM Fridge f WHERE f.id = :fridgeId AND " +
             "EXISTS (SELECT p FROM f.products p WHERE p.expirationDate BETWEEN :start AND :end)")

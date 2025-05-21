@@ -33,7 +33,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public Fridge getFridgeById(long fridgeId) {
-        return fridgeRepository.findById(fridgeId);
+        return fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getProductsInFridge(long fridgeId, String sortBy, String order) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
         var products = fridge.getProducts();
         Comparator<Product> comparator = null;
 
@@ -96,7 +96,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getExpiringSoonProducts(long fridgeId, int daysBeforeExpiration) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
         log.info("Showing products expiring in {} days for fridge {}", daysBeforeExpiration, fridge.getFridgeName());
         return fridge.getProducts().stream()
                 .filter(product -> product.getExpirationDate().isBefore(LocalDate.now().plusDays(daysBeforeExpiration)))
@@ -106,7 +106,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> searchProductsInFridge(long fridgeId, String name, String category) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
         if (name != null && !name.trim().isEmpty()) {
             log.info("Searching for products with name {}", name);
             var lowerCaseName = name.toLowerCase();
@@ -128,7 +128,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getUseFirstSuggestions(long fridgeId, int count) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
         var allProducts = fridge.getProducts();
 
         Comparator<Product> useFirstComparator = Comparator.comparing(Product::getExpirationDate, Comparator.nullsFirst(LocalDate::compareTo))
@@ -144,7 +144,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public List<Product> getWhatIsNew(long fridgeId, int days) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
         LocalDate cutoffDate = LocalDate.now().minusDays(days);
         log.info("Showing products added after {} for fridge {}", cutoffDate, fridgeId);
         return fridge.getProducts().stream().filter(product -> product.getDateAdded() != null && (product.getDateAdded().isEqual(cutoffDate) || product.getDateAdded().isAfter(cutoffDate)))
@@ -155,7 +155,7 @@ public class FridgeServiceImpl implements FridgeService {
 
     @Override
     public FridgeSummaryDto getFridgeSummary(long fridgeId) {
-        Fridge fridge = fridgeRepository.findById(fridgeId);
+        Fridge fridge = fridgeRepository.findById(fridgeId).orElseThrow(() -> new IllegalArgumentException("Fridge not found"));
 
         List<Product> fridgeProducts = fridge.getProducts();
 
