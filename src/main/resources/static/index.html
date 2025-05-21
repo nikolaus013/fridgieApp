@@ -4,8 +4,8 @@
     <title>Fridge Manager</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;}
         .section { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px; background-color: #fff; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
@@ -15,7 +15,10 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            margin-bottom: 5px; /* Add some space below inputs */
         }
+        .form-group-inline input, .form-group-inline select { width: auto; margin-right: 10px; }
+
         button {
             padding: 10px 18px;
             background: #5cb85c;
@@ -24,10 +27,11 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 5px;
         }
         button:hover { background: #4cae4c; }
-        .fridge-list { margin-top: 20px; }
-        .fridge, .product-item {
+        .fridge-list, .results-display { margin-top: 20px; }
+        .fridge, .product-item, .summary-item {
             border: 1px solid #eee;
             padding: 10px;
             margin-bottom: 10px;
@@ -35,6 +39,7 @@
             background-color: #f9f9f9;
         }
         .product-details { margin-left: 20px; font-size: 0.9em; }
+        .error-message { color: red; font-weight: bold;}
     </style>
 </head>
 <body>
@@ -57,12 +62,16 @@
     <div class="section">
         <h2>Add Product to Fridge</h2>
         <div class="form-group">
-            <label for="fridgeList">Select Fridge:</label>
-            <select id="fridgeList"></select>
+            <label for="addProductFridgeList">Select Fridge:</label>
+            <select id="addProductFridgeList"></select>
         </div>
         <div class="form-group">
             <label for="productName">Product Name:</label>
             <input type="text" id="productName" placeholder="e.g., Milk">
+        </div>
+        <div class="form-group">
+            <label for="productDescription">Product Description (Optional):</label>
+            <input type="text" id="productDescription" placeholder="e.g., Whole milk, 1 gallon">
         </div>
         <div class="form-group">
             <label for="expirationDate">Expiration Date:</label>
@@ -76,61 +85,231 @@
     </div>
 
     <div class="section">
-        <h2>Fridge Contents</h2>
-        <button onclick="loadFridges()">Refresh List</button>
-        <div id="fridges" class="fridge-list"></div>
+        <h2>All Fridges & Contents</h2>
+        <button onclick="loadFridges()">Refresh List of All Fridges</button>
+        <div id="fridgesDisplay" class="fridge-list"></div>
     </div>
 
     <div class="section">
-        <h2>Check Expiring Products</h2>
+        <h2>Fridge Summary/Dashboard</h2>
         <div class="form-group">
-            <label for="expiringFridgeList">Select Fridge:</label>
-            <select id="expiringFridgeList"></select>
+            <label for="summaryFridgeList">Select Fridge:</label>
+            <select id="summaryFridgeList"></select>
         </div>
-        <div class="form-group">
-            <label for="days">Days Before Expiration:</label>
-            <input type="number" id="days" placeholder="Days before expiration" value="7" min="0">
-        </div>
-        <button onclick="checkExpiring()">Check Expiring</button>
-        <div id="expiringResults" class="fridge-list"></div>
+        <button onclick="getFridgeSummary()">Get Summary</button>
+        <div id="fridgeSummaryResults" class="results-display"></div>
     </div>
+
+    <div class="section">
+        <h2>Search Products in Fridge</h2>
+        <div class="form-group">
+            <label for="searchFridgeList">Select Fridge:</label>
+            <select id="searchFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="searchProductName">Product Name (contains):</label>
+            <input type="text" id="searchProductName" placeholder="e.g., Milk">
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="searchProductCategory">Category (exact match):</label>
+            <input type="text" id="searchProductCategory" placeholder="e.g., Dairy">
+        </div>
+        <button onclick="searchProductsInFridge()">Search Products</button>
+        <div id="searchProductsResults" class="results-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>Check Expiring Products Soon</h2>
+        <div class="form-group">
+            <label for="expiringSoonFridgeList">Select Fridge:</label>
+            <select id="expiringSoonFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="expiringDays">Days Before Expiration:</label>
+            <input type="number" id="expiringDays" value="7" min="0">
+        </div>
+        <button onclick="checkExpiringSoon()">Check Expiring Soon</button>
+        <div id="expiringSoonResults" class="results-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>View Expired Products</h2>
+        <div class="form-group">
+            <label for="expiredProductsFridgeList">Select Fridge:</label>
+            <select id="expiredProductsFridgeList"></select>
+        </div>
+        <button onclick="showExpiredProducts()">Show Expired Products</button>
+        <div id="expiredProductsResults" class="results-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>Products Expiring in Date Range</h2>
+        <div class="form-group">
+            <label for="dateRangeFridgeList">Select Fridge:</label>
+            <select id="dateRangeFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="searchFromDate">From Date (Start Date):</label>
+            <input type="date" id="searchFromDate">
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="searchToDate">To Date (End Date):</label>
+            <input type="date" id="searchToDate">
+        </div>
+        <button onclick="showExpiringInRange()">Show Expiring in Range</button>
+        <div id="dateRangeResults" class="results-display"></div>
+    </div>
+
+
+    <div class="section">
+        <h2>What's New in Fridge? (Recent Products)</h2>
+        <div class="form-group">
+            <label for="recentProductsFridgeList">Select Fridge:</label>
+            <select id="recentProductsFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="recentDays">Added in the Last (days):</label>
+            <input type="number" id="recentDays" value="7" min="1">
+        </div>
+        <button onclick="showRecentProducts()">Show Recent Products</button>
+        <div id="recentProductsResults" class="results-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>"Use First" Smart Suggestions</h2>
+        <div class="form-group">
+            <label for="useFirstFridgeList">Select Fridge:</label>
+            <select id="useFirstFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="useFirstCount">Number of Suggestions:</label>
+            <input type="number" id="useFirstCount" value="3" min="1">
+        </div>
+        <button onclick="getUseFirstSuggestions()">Get Suggestions</button>
+        <div id="useFirstSuggestionsResults" class="results-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>View Longest Stored Products</h2>
+        <div class="form-group">
+            <label for="longestStoredFridgeList">Select Fridge:</label>
+            <select id="longestStoredFridgeList"></select>
+        </div>
+        <div class="form-group form-group-inline">
+            <label for="longestStoredCount">Number of Products:</label>
+            <input type="number" id="longestStoredCount" value="5" min="1">
+        </div>
+        <button onclick="showLongestStoredProducts()">Show Longest Stored</button>
+        <div id="longestStoredResults" class="results-display"></div>
+    </div>
+
 </div>
 
 <script>
+    const SPRING_BOOT_HOST = 'http://localhost:8080';
+    const API_BASE = `${SPRING_BOOT_HOST}/fridge`;
 
-   const SPRING_BOOT_HOST = 'http://localhost:8080'; // Base path for the FridgeController
-   const API_BASE = `${SPRING_BOOT_HOST}/fridge`;
 
-    // Centralized error handler function
     async function handleFetchError(response) {
-        if (response.headers.get("content-type")?.includes("application/json")) {
-            const errorData = await response.json();
-            if (typeof errorData === 'object' && errorData !== null) {
-                if (errorData.message) { // General message from backend
-                    return errorData.message;
+        let errorMessage = `Request failed with status: ${response.status}`;
+        try {
+            if (response.headers.get("content-type")?.includes("application/json")) {
+                const errorData = await response.json();
+                if (errorData && typeof errorData === 'object') {
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                        // For Spring Boot validation errors (often in an 'errors' array)
+                        if(errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+                            const validationErrors = errorData.errors.map(e => `${e.field ? e.field + ': ' : ''}${e.defaultMessage}`).join('\n');
+                            errorMessage += `\nDetails:\n${validationErrors}`;
+                        } else if (typeof errorData.error === 'string' && errorData.path) { // Other Spring Boot error structures
+                            errorMessage = `${errorData.error} on path ${errorData.path}`;
+                        }
+                    } else {
+                        errorMessage = Object.entries(errorData)
+                            .map(([field, message]) => `${field}: ${message}`)
+                            .join('\n');
+                    }
+                } else {
+                    const textError = await response.text();
+                    if (textError) errorMessage = textError.substring(0, 500); // Show first 500 chars
                 }
-                // For Spring Boot validation errors which might be an array in 'errors'
-                // or a map of field errors. This is a simplified version.
-                return Object.entries(errorData)
-                    .map(([field, message]) => `${field}: ${message}`)
-                    .join('\n');
+            } else { // Not JSON at all
+                const textError = await response.text();
+                if (textError) errorMessage = textError.substring(0, 500);
             }
-            return "Invalid JSON error response from server.";
+        } catch (e) {
+            console.error("Error parsing error response body:", e);
+
         }
-        return `Server responded with status ${response.status}: ${await response.text()}`;
+        return errorMessage;
     }
 
+    // Helper function to render a list of products
+    function renderProducts(elementId, products, messageIfEmpty = "No products found matching your criteria.") {
+        const container = document.getElementById(elementId);
+        if (!products || products.length === 0) {
+            container.innerHTML = `<p>${messageIfEmpty}</p>`;
+            return;
+        }
+        container.innerHTML = products.map(p => `
+            <div class="product-item">
+                <strong>${p.productName || 'Unnamed Product'}</strong><br>
+                ${p.description ? `Description: ${p.description}<br>` : ''}
+                Expires: ${p.expirationDate || 'N/A'}<br>
+                Added: ${p.dateAdded || 'N/A'}<br>
+                Category: ${p.category || 'N/A'}
+            </div>
+        `).join('');
+    }
 
-    // Load fridge dropdowns on page load
+    // IDs of all fridge select dropdowns
+    const fridgeSelectDropdownIds = [
+        'addProductFridgeList', 'summaryFridgeList', 'searchFridgeList',
+        'expiringSoonFridgeList', 'expiredProductsFridgeList', 'recentProductsFridgeList',
+        'useFirstFridgeList', 'longestStoredFridgeList', 'dateRangeFridgeList'
+    ];
+
+    async function loadFridgeDropdowns() {
+        try {
+            const response = await fetch(`${API_BASE}/all`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const fridges = await response.json();
+
+            const optionsHtml = fridges.map(f =>
+                `<option value="${f.id}">${f.fridgeName || `Fridge ID: ${f.id}`}</option>`
+            ).join('');
+
+            fridgeSelectDropdownIds.forEach(id => {
+                const selectElement = document.getElementById(id);
+                if (selectElement) {
+                    selectElement.innerHTML = optionsHtml;
+                    if (fridges.length === 0) {
+                        selectElement.innerHTML = '<option value="">No fridges available</option>';
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Failed to load fridge dropdowns:', error);
+            // Potentially disable sections or show a global error for dropdowns
+            fridgeSelectDropdownIds.forEach(id => {
+                const selectElement = document.getElementById(id);
+                if (selectElement) {
+                    selectElement.innerHTML = '<option value="">Error loading fridges</option>';
+                }
+            });
+            alert(`Failed to load fridge lists for dropdowns:\n${error.message}`);
+        }
+    }
+
     window.onload = () => {
         loadFridgeDropdowns();
-        loadFridges();
+        loadFridges(); // Load all fridges display on page load
     };
 
     async function createFridge() {
         const fridgeNameInput = document.getElementById('fridgeName');
         const fridgeCapacityInput = document.getElementById('fridgeCapacity');
-
         const fridge = {
             fridgeName: fridgeNameInput.value,
             fridgeCapacity: parseInt(fridgeCapacityInput.value)
@@ -142,24 +321,17 @@
         }
 
         try {
-            const response = await fetch(`${API_BASE}/addfridge`, { // CORRECTED URL
+            const response = await fetch(`${API_BASE}/addfridge`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fridge)
             });
-
-            if (!response.ok) {
-                const errorMessage = await handleFetchError(response);
-                throw new Error(errorMessage);
-            }
-
-            // const data = await response.json(); // data is the created fridge, if needed
+            if (!response.ok) throw new Error(await handleFetchError(response));
             alert('Fridge created successfully!');
-            fridgeNameInput.value = ''; // Clear input
-            fridgeCapacityInput.value = ''; // Clear input
-            await loadFridgeDropdowns();
-            await loadFridges();
-
+            fridgeNameInput.value = '';
+            fridgeCapacityInput.value = '';
+            await loadFridgeDropdowns(); // Reload dropdowns in case a new fridge was added
+            await loadFridges(); // Reload the main list of fridges
         } catch (error) {
             alert(`Error creating fridge:\n${error.message}`);
             console.error('Error details:', error);
@@ -167,24 +339,23 @@
     }
 
     async function addProduct() {
-        const fridgeId = document.getElementById('fridgeList').value;
+        const fridgeId = document.getElementById('addProductFridgeList').value;
         const productNameInput = document.getElementById('productName');
+        const productDescriptionInput = document.getElementById('productDescription');
         const expirationDateInput = document.getElementById('expirationDate');
         const categoryInput = document.getElementById('category');
 
         const product = {
             productName: productNameInput.value,
+            description: productDescriptionInput.value, // Include description
             expirationDate: expirationDateInput.value,
             category: categoryInput.value
+            // dateAdded is set by the backend
         };
 
-        if (!fridgeId) {
-            alert('Please select a fridge.');
-            return;
-        }
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
         if (!product.productName || !product.expirationDate) {
-            alert('Please provide product name and expiration date.');
-            return;
+            alert('Please provide at least product name and expiration date.'); return;
         }
 
         try {
@@ -193,123 +364,236 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(product)
             });
-
-            if (!response.ok) {
-                const errorMessage = await handleFetchError(response);
-                throw new Error(errorMessage);
-            }
-            // const addedProductData = await response.json(); // Response is the updated Fridge
+            if (!response.ok) throw new Error(await handleFetchError(response));
             alert('Product added successfully!');
             productNameInput.value = '';
+            productDescriptionInput.value = '';
             expirationDateInput.value = '';
             categoryInput.value = '';
-            loadFridges(); // Refresh the list to show the new product
+            await loadFridges(); // Refresh the main fridges display to show the new product
         } catch (error) {
             alert(`Error adding product:\n${error.message}`);
             console.error('Error details:', error);
         }
     }
 
-    async function loadFridgeDropdowns() {
+    async function loadFridges() { // Displays ALL fridges and their contents
         try {
-            const response = await fetch(`${API_BASE}/all`); // CORRECTED URL
-            if (!response.ok) {
-                const errorMessage = await handleFetchError(response);
-                throw new Error(errorMessage);
-            }
+            const response = await fetch(`${API_BASE}/all`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
             const fridges = await response.json();
-
-            const fridgeSelect = document.getElementById('fridgeList');
-            const expiringSelect = document.getElementById('expiringFridgeList');
-
-            fridgeSelect.innerHTML = fridges.map(f =>
-                `<option value="${f.id}">${f.fridgeName || 'Unnamed Fridge'}</option>`
-            ).join('');
-
-            expiringSelect.innerHTML = fridges.map(f =>
-                `<option value="${f.id}">${f.fridgeName || 'Unnamed Fridge'}</option>`
-            ).join('');
-        } catch (error) {
-            console.error('Failed to load fridge dropdowns:', error);
-            alert(`Failed to load fridge lists for dropdowns:\n${error.message}`);
-        }
-    }
-
-    async function loadFridges() {
-        try {
-            const response = await fetch(`${API_BASE}/all`); // CORRECTED URL
-            if (!response.ok) {
-                const errorMessage = await handleFetchError(response);
-                throw new Error(errorMessage);
-            }
-            const fridges = await response.json();
-
-            const fridgeListDiv = document.getElementById('fridges');
+            const fridgeListDiv = document.getElementById('fridgesDisplay');
             if (fridges.length === 0) {
                 fridgeListDiv.innerHTML = "<p>No fridges found. Create one to get started!</p>";
                 return;
             }
-
             fridgeListDiv.innerHTML = fridges.map(f => `
-                    <div class="fridge">
-                        <h3>${f.fridgeName || 'Unnamed Fridge'} (Products: ${f.products ? f.products.length : 0}/${f.fridgeCapacity || 'N/A'})</h3>
-                        <div class="product-details">
-                            ${f.products && f.products.length > 0 ? f.products.map(p => `
-                                <div class="product-item">
-                                    <strong>${p.productName || 'Unnamed Product'}</strong><br>
-                                    Expires: ${p.expirationDate || 'N/A'}<br>
-                                    Category: ${p.category || 'N/A'}
-                                </div>
-                            `).join('') : '<p>No products in this fridge.</p>'}
-                        </div>
+                <div class="fridge">
+                    <h3>${f.fridgeName || `Fridge ID: ${f.id}`} (Products: ${f.products ? f.products.length : 0}/${f.fridgeCapacity || 'N/A'})</h3>
+                    <div class="product-details">
+                        ${f.products && f.products.length > 0 ? f.products.map(p => `
+                            <div class="product-item">
+                                <strong>${p.productName || 'Unnamed Product'}</strong><br>
+                                ${p.description ? `Description: ${p.description}<br>` : ''}
+                                Expires: ${p.expirationDate || 'N/A'}<br>
+                                Added: ${p.dateAdded || 'N/A'}<br>
+                                Category: ${p.category || 'N/A'}
+                            </div>
+                        `).join('') : '<p>No products in this fridge.</p>'}
                     </div>
-                `).join('');
+                </div>
+            `).join('');
         } catch (error) {
             console.error('Failed to load fridges:', error);
-            document.getElementById('fridges').innerHTML = `<p style="color:red;">Could not load fridges: ${error.message}</p>`;
+            document.getElementById('fridgesDisplay').innerHTML = `<p class="error-message">Could not load fridges: ${error.message}</p>`;
         }
     }
 
-    async function checkExpiring() {
-        const fridgeId = document.getElementById('expiringFridgeList').value;
-        const days = document.getElementById('days').value;
+    async function checkExpiringSoon() {
+        const fridgeId = document.getElementById('expiringSoonFridgeList').value;
+        const days = document.getElementById('expiringDays').value;
+        const resultsDivId = 'expiringSoonResults';
 
-        if (!fridgeId) {
-            alert('Please select a fridge.');
-            return;
-        }
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
         if (days === '' || parseInt(days) < 0) {
-            alert('Please enter a valid number of days (0 or more).');
+            alert('Please enter a valid number of days (0 or more).'); return;
+        }
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/expiring-soon?daysBeforeExpiration=${days}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "No products expiring soon in this fridge for the selected period.");
+        } catch (error) {
+            console.error('Failed to check expiring products:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not check expiring products: ${error.message}</p>`;
+        }
+    }
+
+
+
+    async function getFridgeSummary() {
+        const fridgeId = document.getElementById('summaryFridgeList').value;
+        const resultsDiv = document.getElementById('fridgeSummaryResults');
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+
+        try {
+            resultsDiv.innerHTML = '<p>Loading summary...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/summary`); // URL seems OK based on controller
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const summary = await response.json();
+
+            let longestStoredHtml = 'N/A';
+            if (summary.longestStoredItem) {
+                const lsp = summary.longestStoredItem;
+                longestStoredHtml = `<strong>${lsp.productName || 'Unnamed'}</strong> (Added: ${lsp.dateAdded || 'N/A'}, Expires: ${lsp.expirationDate || 'N/A'})`;
+            }
+
+
+            let expiringSoonText = `Items Expiring Soon: ${summary.itemsExpiringSoon}`;
+
+
+
+            resultsDiv.innerHTML = `
+                <div class="summary-item"><strong>Fridge Name:</strong> ${summary.fridgeName || `ID: ${summary.fridgeId}`}</div>
+                <div class="summary-item"><strong>Total Items:</strong> ${summary.totalItems} / ${summary.maxCapacity}</div>
+                <div class="summary-item"><strong>Items Expired:</strong> ${summary.itemsExpired}</div>
+                <div class="summary-item"><strong>${expiringSoonText}</strong></div>
+                <div class="summary-item"><strong>Longest Stored Item:</strong> ${longestStoredHtml}</div>
+                <div class="summary-item"><strong>Categories Present:</strong> ${(summary.categoriesPresent && summary.categoriesPresent.length > 0) ? summary.categoriesPresent.join(', ') : 'None'}</div>
+            `;
+        } catch (error) {
+            console.error('Failed to get fridge summary:', error);
+            resultsDiv.innerHTML = `<p class="error-message">Could not get fridge summary: ${error.message}</p>`;
+        }
+    }
+
+    async function showRecentProducts() {
+        const fridgeId = document.getElementById('recentProductsFridgeList').value;
+        const days = document.getElementById('recentDays').value;
+        const resultsDivId = 'recentProductsResults';
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+        if (days === '' || parseInt(days) < 1) { alert('Please enter a valid number of days (1 or more).'); return; }
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading recent products...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/products/show-newest?days=${days}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "No products added in the specified period.");
+        } catch (error) {
+            console.error('Failed to load recent products:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not load recent products: ${error.message}</p>`;
+        }
+    }
+
+    async function getUseFirstSuggestions() {
+        const fridgeId = document.getElementById('useFirstFridgeList').value;
+        const count = document.getElementById('useFirstCount').value;
+        const resultsDivId = 'useFirstSuggestionsResults';
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+        if (count === '' || parseInt(count) < 1) { alert('Please enter a valid number of suggestions (1 or more).'); return; }
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading suggestions...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/products/suggest-first?count=${count}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "No specific 'use first' suggestions at the moment.");
+        } catch (error) {
+            console.error('Failed to get use first suggestions:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not get suggestions: ${error.message}</p>`;
+        }
+    }
+
+    async function searchProductsInFridge() {
+        const fridgeId = document.getElementById('searchFridgeList').value;
+        const name = document.getElementById('searchProductName').value;
+        const category = document.getElementById('searchProductCategory').value;
+        const resultsDivId = 'searchProductsResults';
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+        if (name.trim() === '' && category.trim() === '') {
+            alert('Please enter a name or category to search.');
             return;
         }
 
         try {
-            // CORRECTED QUERY PARAMETER NAME
-            const response = await fetch(`${API_BASE}/${fridgeId}/expiring-soon?daysBeforeExpiration=${days}`);
-            if (!response.ok) {
-                const errorMessage = await handleFetchError(response);
-                throw new Error(errorMessage);
-            }
+            document.getElementById(resultsDivId).innerHTML = '<p>Searching products...</p>';
+            const queryParams = new URLSearchParams();
+            if (name.trim() !== '') queryParams.append('name', name);
+            if (category.trim() !== '') queryParams.append('category', category);
+            const response = await fetch(`${API_BASE}/${fridgeId}/products/search?${queryParams.toString()}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
             const products = await response.json();
-
-            const resultsDiv = document.getElementById('expiringResults');
-            if (products.length === 0) {
-                resultsDiv.innerHTML = "<p>No products expiring soon in this fridge for the selected period.</p>";
-                return;
-            }
-            resultsDiv.innerHTML = products.map(p => `
-                    <div class="product-item">
-                        <strong>${p.productName || 'Unnamed Product'}</strong><br>
-                        Expires: ${p.expirationDate || 'N/A'}<br>
-                        ${p.category ? `Category: ${p.category}<br>` : ''}
-                        ${p.dateAdded ? `Added: ${p.dateAdded}` : ''}
-                    </div>
-                `).join('');
+            renderProducts(resultsDivId, products, "No products found matching your search.");
         } catch (error) {
-            console.error('Failed to check expiring products:', error);
-            document.getElementById('expiringResults').innerHTML = `<p style="color:red;">Could not check expiring products: ${error.message}</p>`;
+            console.error('Failed to search products:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not search products: ${error.message}</p>`;
         }
     }
+
+    async function showExpiredProducts() {
+        const fridgeId = document.getElementById('expiredProductsFridgeList').value;
+        const resultsDivId = 'expiredProductsResults';
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading expired products...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/expired`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "No expired products found in this fridge.");
+        } catch (error) {
+            console.error('Failed to load expired products:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not load expired products: ${error.message}</p>`;
+        }
+    }
+
+    async function showLongestStoredProducts() {
+        const fridgeId = document.getElementById('longestStoredFridgeList').value;
+        const count = document.getElementById('longestStoredCount').value;
+        const resultsDivId = 'longestStoredResults';
+
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+        if (count === '' || parseInt(count) < 1) { alert('Please enter a valid number of products (1 or more).'); return; }
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading longest stored products...</p>';
+            const response = await fetch(`${API_BASE}/${fridgeId}/longest-stored?count=${count}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "Could not determine longest stored products or fridge is empty.");
+        } catch (error) {
+            console.error('Failed to load longest stored products:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not load longest stored products: ${error.message}</p>`;
+        }
+    }
+
+    async function showExpiringInRange() {
+        const fridgeId = document.getElementById('dateRangeFridgeList').value;
+        const fromDate = document.getElementById('searchFromDate').value;
+        const toDate = document.getElementById('searchToDate').value;
+        const resultsDivId = 'dateRangeResults';
+
+        if (!fridgeId) { alert('Please select a fridge.'); return; }
+        if (!fromDate || !toDate) { alert('Please select both a "From Date" and a "To Date".'); return; }
+        if (new Date(fromDate) > new Date(toDate)) { alert('"From Date" cannot be after "To Date".'); return; }
+
+
+        try {
+            document.getElementById(resultsDivId).innerHTML = '<p>Loading products expiring in range...</p>';
+            const queryParams = new URLSearchParams({ startDate: fromDate, endDate: toDate });
+            const response = await fetch(`${API_BASE}/${fridgeId}/products/expiring-in-range?${queryParams.toString()}`);
+            if (!response.ok) throw new Error(await handleFetchError(response));
+            const products = await response.json();
+            renderProducts(resultsDivId, products, "No products found expiring in the selected date range.");
+        } catch (error) {
+            console.error('Failed to load products expiring in range:', error);
+            document.getElementById(resultsDivId).innerHTML = `<p class="error-message">Could not load products for the date range: ${error.message}</p>`;
+        }
+    }
+
 </script>
 </body>
 </html>
