@@ -33,6 +33,7 @@ public class FridgeServiceTest {
     private Product testProduct1;
     private Product testProduct2;
     private Product testProduct3;
+     Product pMilk, pEggs, pCheese, pJuice, pOldLettuce, pBread;
 
     private final LocalDate TODAY = LocalDate.of(2025, 5, 21);
 
@@ -53,6 +54,14 @@ public class FridgeServiceTest {
         testProduct2 = new Product("Fresh Milk", TODAY.plusDays(10), TODAY.plusDays(1), "Fresh", "Dairy");
         testProduct3 = new Product("Fresh Cheese", TODAY.plusDays(15), TODAY.plusDays(1), "Fresh", "Dairy");
         Product productWithNullExpiry = new Product("Alcohol", null, TODAY.minusDays(2), "No Expiry Date", "Unknown");
+
+
+        pMilk = new Product("Milk", TODAY.plusDays(5), TODAY.minusDays(2), "Whole Milk", "Dairy"); // Added 2 days ago
+        pEggs = new Product("Eggs", TODAY.plusDays(10), TODAY, "Dozen Large Eggs", "Dairy");      // Added today
+        pCheese = new Product("Cheese", TODAY.plusDays(20), TODAY.minusDays(7), "Cheddar Block", "Dairy"); // Added 7 days ago
+        pJuice = new Product("Orange Juice", TODAY.plusDays(3), TODAY.minusDays(1), "Freshly Squeezed", "Drinks"); // Added 1 day ago
+        pOldLettuce = new Product("Lettuce", TODAY.minusDays(1), TODAY.minusDays(5), "Bagged Lettuce", "Produce"); // Expired, Added 5 days ago
+        pBread = new Product("Bread", TODAY.plusDays(2), TODAY, "Sourdough", "Bakery"); // Added today
 
     }
 
@@ -377,6 +386,142 @@ public class FridgeServiceTest {
         assertEquals("Apple", sortedProducts.get(0).getProductName());
         assertEquals("Banana", sortedProducts.get(1).getProductName());
         verify(fridgeRepository, times(1)).findById(fridgeId);
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should return products matching name when name is provided")
+    void testSearchProductsInFridge_byName_returnsMatching() {
+        //  Arrange
+        long fridgeId = 1L;
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, pEggs, pJuice))); // Milk, Eggs, Orange Juice
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, "Juice", null);
+
+        //  Assert
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertTrue(results.stream().anyMatch(p -> p.getProductName().equals("Orange Juice")));
+        verify(fridgeRepository, times(1)).findById(fridgeId);
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should be case-insensitive for name search and use contains")
+    void testSearchProductsInFridge_byName_caseInsensitiveContains() {
+        // Arrange
+        long fridgeId = 1L;
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, pEggs))); // Milk, Eggs
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, "miLk", null); // Case diff, partial
+
+        //  Assert
+        assertEquals(1, results.size());
+        assertEquals("Milk", results.getFirst().getProductName());
+    }
+
+
+    @Test
+    @DisplayName("searchProductsInFridge should return products matching category when only category is provided")
+    void testSearchProductsInFridge_byCategory_returnsMatching() {
+        //  Arrange
+        long fridgeId = 1L;
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, pEggs, pJuice, pBread))); // Dairy, Dairy, Drinks, Bakery
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, null, "Dairy");
+
+        //  Assert
+        assertNotNull(results);
+        assertEquals(2, results.size()); // Milk and Eggs are Dairy
+        assertTrue(results.stream().allMatch(p -> p.getCategory().equalsIgnoreCase("Dairy")));
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should be case-insensitive for category search and use contains")
+    void testSearchProductsInFridge_byCategory_caseInsensitiveContains() {
+        //  Arrange
+        long fridgeId = 1L;
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, pJuice))); // Dairy, Drinks
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        // Your current service logic uses .contains() for category.
+        // If you want an exact match, it should be .equalsIgnoreCase()
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, null, "daIry");
+
+        //  Assert
+        assertEquals(1, results.size());
+        assertEquals("Dairy", results.getFirst().getCategory());
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should prioritize name search if both name and category are provided")
+    void testSearchProductsInFridge_byNameAndCategory_prioritizesName() {
+        //  Arrange
+        long fridgeId = 1L;
+        Product specialMilk = new Product("Special Milk", TODAY.plusDays(1), TODAY, "Organic", "Dairy");
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, specialMilk, pJuice)));
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        // Current logic: if the name is present, category is ignored.
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, "Milk", "Drinks");
+
+        //  Assert
+        assertEquals(1, results.size());
+        assertTrue(results.stream().allMatch(p -> p.getProductName().contains("Milk")));
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should return all products if no criteria provided")
+    void testSearchProductsInFridge_noCriteria_returnsAll() {
+        //  Arrange
+        long fridgeId = 1L;
+        List<Product> allFridgeProducts = Arrays.asList(pMilk, pJuice);
+        testFridge1.setProducts(new ArrayList<>(allFridgeProducts));
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, null, null);
+
+        //  Assert
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals(allFridgeProducts, results);
+
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should return empty list if no products match criteria")
+    void testSearchProductsInFridge_noMatches_returnsEmptyList() {
+        //  Arrange
+        long fridgeId = 1L;
+        testFridge1.setProducts(new ArrayList<>(Arrays.asList(pMilk, pJuice)));
+        when(fridgeRepository.findById(fridgeId)).thenReturn(Optional.of(testFridge1));
+
+        //  Act
+        List<Product> results = fridgeService.searchProductsInFridge(fridgeId, "NonExistent", null);
+
+        //  Assert
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
+    }
+
+    @Test
+    @DisplayName("searchProductsInFridge should throw IllegalArgumentException if fridge not found")
+    void testSearchProductsInFridge_fridgeNotFound_throwsException() {
+        //  Arrange
+        long nonExistentFridgeId = 99L;
+        when(fridgeRepository.findById(nonExistentFridgeId)).thenReturn(Optional.empty());
+
+        //  Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            fridgeService.searchProductsInFridge(nonExistentFridgeId, "Milk", null);
+        });
     }
 
 

@@ -116,13 +116,13 @@ public class FridgeServiceImpl implements FridgeService {
             log.info("Searching for products with name {}", name);
             var lowerCaseName = name.toLowerCase();
             return fridge.getProducts().stream()
-                    .filter(product -> product.getProductName().toLowerCase().contains(lowerCaseName))
+                    .filter(product -> product.getProductName().toLowerCase().equalsIgnoreCase(lowerCaseName))
                     .toList();
         } else if (category != null && !category.trim().isEmpty()) {
             log.info("Searching for products with category {}", category);
             var lowerCaseCategory = category.toLowerCase();
             return fridge.getProducts().stream()
-                    .filter(product -> product.getCategory().toLowerCase().contains(lowerCaseCategory))
+                    .filter(product -> product.getCategory().toLowerCase().equalsIgnoreCase(lowerCaseCategory))
                     .toList();
         } else {
             log.info("Searching for all products in fridge {}", fridge.getFridgeName());
